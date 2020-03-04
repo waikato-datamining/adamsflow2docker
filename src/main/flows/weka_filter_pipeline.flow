@@ -1,0 +1,39 @@
+# Project: adams
+# Date: 2020-03-04 13:41:28
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-core,adams-json,adams-math,adams-ml,adams-spreadsheet,adams-visualstats,adams-weka
+#
+adams.flow.control.Flow -annotation "Flow for cleaning up ARFF files using the IQR filter.\\nPolls the input directory for files and places the cleaned up files\\nin the output directory.\\nThe directories can be overridden with the INPUT and OUTPUT\\nenvironment variables.\\nDebugging output can be turned on/off with the DEBUG\\nenvironment variable (true|false)." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.SetVariable -name "input directory" -var-name input_dir -var-value /home/fracpete/development/projects/waikato-datamining/adamsfamily/adamsflow2docker/test/input/ -override-with-env-var true -env-variable INPUT
+ adams.flow.standalone.SetVariable -name "output directory" -var-name output_dir -var-value /home/fracpete/development/projects/waikato-datamining/adamsfamily/adamsflow2docker/test/output/ -override-with-env-var true -env-variable OUTPUT
+ adams.flow.standalone.SetVariable -name debugging? -var-name debug -var-value true -override-with-env-var true -env-variable DEBUG
+ adams.flow.source.Start
+ adams.flow.control.WhileLoop -condition adams.flow.condition.bool.True
+  adams.flow.source.Start
+  adams.flow.transformer.SetVariable -name reset -var-name processed -var-value false
+  adams.flow.control.Trigger -name process
+   adams.flow.source.FileSystemSearch -output-array true -search "adams.flow.source.filesystemsearch.LocalFileSearch -directory @{input_dir} -regexp .*\\\\.arff" -use-forward-slashes true
+   adams.flow.control.Sleep -annotation "for files to become available" -interval 500
+   adams.flow.transformer.ArrayToSequence
+   adams.flow.control.ConditionalTee -name logging -condition "adams.flow.condition.bool.VariableFlagSet -variable-name debug"
+    adams.flow.sink.Console -prefix "input: "
+   adams.flow.control.Tee -name "output files"
+    adams.flow.transformer.BaseName
+    adams.flow.transformer.PrependDir -prefix @{output_dir} -use-forward-slashes true
+    adams.flow.transformer.SetVariable -var-name output_file
+    adams.flow.transformer.Convert -conversion "adams.data.conversion.ReplaceFileExtension -extension .original -use-forward-slashes true"
+    adams.flow.transformer.SetVariable -name "SetVariable (2)" -var-name original_file
+   adams.flow.control.Tee -name move
+    adams.flow.transformer.MoveFile -file @{original_file}
+   adams.flow.control.Trigger -name clean
+    adams.flow.source.Variable -var-name original_file -conversion adams.data.conversion.StringToString
+    adams.flow.transformer.WekaFileReader -use-custom true -loader weka.core.converters.SimpleArffLoader
+    adams.flow.transformer.WekaClassSelector
+    adams.flow.transformer.WekaFilter -filter "weka.filters.MultiFilter -F \"weka.filters.unsupervised.attribute.InterquartileRange -R first-last -O 3.0 -E 6.0\" -F \"weka.filters.unsupervised.instance.RemoveWithValues -S 0.0 -C last -L 2\" -F \"weka.filters.unsupervised.attribute.Remove -R last\" -F \"weka.filters.unsupervised.instance.RemoveWithValues -S 0.0 -C last -L 2\" -F \"weka.filters.unsupervised.attribute.Remove -R last\""
+    adams.flow.sink.WekaFileWriter -output @{output_file} -saver "weka.core.converters.SimpleArffSaver -decimal 6"
+   adams.flow.control.ConditionalTrigger -name "logging (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name debug"
+    adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
+    adams.flow.sink.Console -prefix "output: "
+  adams.flow.control.ConditionalSubProcess -name wait -condition "adams.flow.condition.bool.Expression -expression \"@{processed} = true\""
+   adams.flow.control.Sleep
