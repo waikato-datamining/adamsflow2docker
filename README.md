@@ -103,7 +103,7 @@ image. The `weka_filter_pipeline.flow` workflow (`-i`) then gets turned into a
 Docker image using the following command-line:
 
 ```commandline
-java -jar /some/where/data/adamsflow2docker/adamsflow2docker-0.0.1-spring-boot.jar \
+java -jar /some/where/data/adamsflow2docker/adamsflow2docker-0.0.2-spring-boot.jar \
   -i /some/where/data/flows/weka_filter_pipeline.flow \ 
   -o /some/where/output/adamsflow \
   -b openjdk:11-jdk-slim-buster \
@@ -140,7 +140,8 @@ sudo docker run -ti \
 
 ## Releases
 
-* [0.0.1](https://github.com/waikato-datamining/adamsflow2docker/releases/download/adamsflow2docker-0.0.1/adamsflow2docker-0.0.1-spring-boot.jar)
+* [0.0.2](https://github.com/waikato-datamining/adamsflow2docker/releases/download/adamsflow2docker-0.0.2/adamsflow2docker-0.0.2-spring-boot.jar)
+* [0.0.2](https://github.com/waikato-datamining/adamsflow2docker/releases/download/adamsflow2docker-0.0.2/adamsflow2docker-0.0.2-spring-boot.jar)
 
 
 ## Maven
@@ -149,6 +150,6 @@ sudo docker run -ti \
     <dependency>
       <groupId>nz.ac.waikato.cms.adams</groupId>
       <artifactId>adamsflow2docker</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.2</version>
     </dependency>
 ```
