@@ -101,7 +101,7 @@
     <dependency>
       <groupId>nz.ac.waikato.cms.adams</groupId>
       <artifactId>instant-adams</artifactId>
-      <version>0.1.3</version>
+      <version>0.1.5</version>
     </dependency>
   </dependencies>
 
