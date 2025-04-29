@@ -4,7 +4,7 @@ Library for generating Docker images with an ADAMS workflow running inside.
 
 ## Command-line
 
-```commandline
+```
 Converts ADAMS workflows into Docker images.
 
 
@@ -102,7 +102,7 @@ contains an OpenJDK 11 installation on top of a [Debian "buster"](https://www.de
 image. The `weka_filter_pipeline.flow` workflow (`-i`) then gets turned into a
 Docker image using the following command-line:
 
-```commandline
+```bash
 java -jar /some/where/data/adamsflow2docker/adamsflow2docker-0.0.2-spring-boot.jar \
   -i /some/where/data/flows/weka_filter_pipeline.flow \ 
   -o /some/where/output/adamsflow \
